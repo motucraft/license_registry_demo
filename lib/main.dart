@@ -1,10 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
-
-part 'main.g.dart';
 
 void main() {
   LicenseRegistry.addLicense(() async* {
@@ -12,7 +8,7 @@ void main() {
     yield LicenseEntryWithLineBreaks(['SIL Open Font License'], license);
   });
 
-  runApp(ProviderScope(child: const MaterialApp(home: Home())));
+  runApp(const MaterialApp(home: Home()));
 }
 
 class Home extends StatelessWidget {
@@ -49,18 +45,25 @@ class Home extends StatelessWidget {
   }
 }
 
-class LicenseSummary extends ConsumerWidget {
+class LicenseSummary extends StatelessWidget {
   const LicenseSummary({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text('カスタムライセンス')),
       body: SafeArea(
-        child: switch (ref.watch(licenseNotifierProvider)) {
-          AsyncData(:final value) => _LicenseSummaryBody(entries: value),
-          _ => Center(child: CircularProgressIndicator()),
-        },
+        child: FutureBuilder(
+          future: LicenseRegistry.licenses.toList(),
+          builder: (context, snapshot) {
+            if (snapshot.data case final data?
+                when snapshot.connectionState == ConnectionState.done) {
+              return _LicenseSummaryBody(entries: data);
+            } else {
+              return Center(child: CircularProgressIndicator());
+            }
+          },
+        ),
       ),
     );
   }
@@ -153,13 +156,5 @@ class LicenseDetail extends StatelessWidget {
         child: ListView(padding: EdgeInsets.all(16), children: licenseWidgets),
       ),
     );
-  }
-}
-
-@riverpod
-class LicenseNotifier extends _$LicenseNotifier {
-  @override
-  Future<List<LicenseEntry>> build() {
-    return LicenseRegistry.licenses.toList();
   }
 }
