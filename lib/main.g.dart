@@ -6,7 +6,7 @@ part of 'main.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$licenseNotifierHash() => r'a64299c2c0085d51534dbe850fd0f42ad5b9a97a';
+String _$licenseNotifierHash() => r'694d361824de67815f415ed62264730d561afc37';
 
 /// See also [LicenseNotifier].
 @ProviderFor(LicenseNotifier)
